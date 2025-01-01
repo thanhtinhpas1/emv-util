@@ -145,6 +145,7 @@ function checkEmvCode() {
     if (result.error != 'error') {
       __emvcoobj__ = result.emvobj;
       __original__ = result.original;
+      console.log(__emvcoobj__);
       displayEmvcoCode(__emvcoobj__, __original__);
     } else {
         document.getElementById('formated').innerText = result.message;
@@ -155,7 +156,7 @@ function checkEmvCode() {
 }
 
 function displayEmvcoCode(emvobj, original) {
-  document.getElementById('formated').replaceChildren(printTLV(emvobj, emvobj));
+  document.getElementById('formated').replaceChildren(printTLV(emvobj, emvobj, emvobj));
   document.getElementById('qr').src = "https://quickchart.io/chart?chs=220x220&cht=qr&chl=" + encodeURIComponent(original);
 }
 
@@ -259,11 +260,21 @@ function pad(d) {
   return (d < 10) ? '0' + d.toString() : d.toString();
 }
 
-function printTLV(item, tags, indent=0) {
+function reloadQR() {
+  __emvcoobj__ = __emvcoobj__.sort((tagA, tagB) => {
+    return tagA.t - tagB.t;
+  })
+  __emvcoobj__ = emvobjCorrect(__emvcoobj__);
+  __original__ = emvobjToCode(__emvcoobj__);
+
+  document.getElementById('code').value = __original__;
+
+  checkEmvCode();
+}
+
+function printTLV(parentItem, item, tags, indent=0) {
     if (typeof tags == 'string') {
-      var container = document.createElement('span');
       var span = document.createElement('span');
-      span.id = tags;
 
       const handledbclick = (span) => function() {
         span.style.display = 'none';
@@ -272,14 +283,18 @@ function printTLV(item, tags, indent=0) {
 
         input.onblur = function(e) {
           if (input.value !== item.v) {
-            item.v = input.value;
-            item.l = input.value.length
+            if (!input.value) {
+              if (Array.isArray(parentItem)) {
+                parentItem.splice(parentItem.indexOf(item), 1);
+              } else {
+                parentItem.v.splice(parentItem.v.indexOf(item), 1);
+              }
+            } else {
+              item.v = input.value;
+              item.l = input.value.length
+            }
 
-            __emvcoobj__ = emvobjCorrect(__emvcoobj__);
-            __original__ = emvobjToCode(__emvcoobj__);
-            document.getElementById('code').value = __original__;
-
-            checkEmvCode();
+            reloadQR();
           } else {
             const newSpan = document.createElement('span');
             newSpan.innerText = item.v;
@@ -295,20 +310,17 @@ function printTLV(item, tags, indent=0) {
 
       span.ondblclick = handledbclick(span);
       span.innerText = tags;
-      container.appendChild(span);
-      container.appendChild(document.createElement('br'));
 
-      return container;
+      return span;
     }
 
-    var root = document.createElement('div');
-
-    var first = document.createElement('span');
-    root.appendChild(first);
+    var wrapper = document.createElement('div');
 
     for (var i = 0; i < tags.length; i++) {
         var item = tags[i];
         if (!item.v) break;
+        var root = document.createElement('div');
+        root.id = item.t;
 
         var second = document.createElement('span');
         second.innerText = " . . . ".repeat(indent);
@@ -316,11 +328,99 @@ function printTLV(item, tags, indent=0) {
 
         var third = document.createElement('span');
         third.innerText = item.t + " " + item.l + " ";
+
+        var aElement = document.createElement('a');
+        aElement.innerText = '+';
+        aElement.style.cursor = 'pointer';
+        aElement.style.color = 'green';
+        aElement.style.fontSize = '14px';
+        aElement.style.fontWeight = '600';
+
         root.appendChild(third);
-        root.appendChild(printTLV(item, item.v, indent + 1));
+        const childRoot = printTLV(typeof item.v != 'string' ? item : parentItem, item, item.v, indent + 1)
+        root.appendChild(childRoot);
+
+        const inputTag = document.createElement('input');
+        inputTag.style.width = '30px';
+        inputTag.setAttribute('maxlength', 2);
+        const lengthTag = document.createElement('span');
+        lengthTag.innerText = '--';
+        const valueTag = document.createElement('input');
+        const container = document.createElement('span');
+        const indentTag = document.createElement('span');
+        indentTag.innerText = " . . . ".repeat(typeof item.v != 'string' ? indent+1 : indent);
+
+        const handleFinishInput = (parentItem, container, inputTag, lengthTag, valueTag) => () => {
+          if (!inputTag.value && inputTag.value.length < 2 || !valueTag.value || valueTag.value.length === 0) {
+            container.remove();
+            return;
+          }
+
+          lengthTag.innerText = pad(valueTag.value.length);
+          if (Array.isArray(parentItem)) {
+            parentItem.push({ "t": inputTag.value, "l": lengthTag.innerText, "v": valueTag.value });
+          } else {
+            parentItem.v.push({ "t": inputTag.value, "l": lengthTag.innerText, "v": valueTag.value });
+          }
+
+          console.log(__emvcoobj__);
+          reloadQR();
+        }
+
+        valueTag.onblur = handleFinishInput(parentItem, container, inputTag, lengthTag, valueTag);
+
+
+        container.appendChild(indentTag);
+        container.appendChild(inputTag);
+        container.appendChild(lengthTag);
+        container.appendChild(valueTag);
+        container.appendChild(document.createElement('br'));
+
+        const handleClick = (item, inputTag) => () => {
+          if (typeof item.v != 'string') {
+            console.log('onclick');
+            const firstNode = childRoot.childNodes[0];
+            childRoot.insertBefore(container, firstNode);
+            inputTag.focus();
+
+            return;
+          }
+
+          let isCurrentNode = false;
+          let nodeAfter = null;
+          for (let node of root.parentNode.childNodes) {
+            if (isCurrentNode) {
+              nodeAfter = node;
+              break;
+            }
+
+            if (node.id && node.id === item.t) {
+              isCurrentNode = true;
+              continue;
+            }
+          }
+
+          root.parentNode.insertBefore(container, nodeAfter);
+          inputTag.focus();
+        }
+
+        aElement.onclick = handleClick(item, inputTag);
+
+        if (typeof item.v != 'string') {
+          third.appendChild(aElement);
+          third.appendChild(document.createElement('br'));
+        } else {
+          const space = document.createElement('span');
+          space.innerText = ' ';
+          root.appendChild(space);
+          root.appendChild(aElement);
+          root.appendChild(document.createElement('br'));
+        }
+
+        wrapper.appendChild(root);
     }
 
-    return root;
+    return wrapper;
 }
 
 function crc16(str) {
