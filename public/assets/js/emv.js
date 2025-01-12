@@ -367,7 +367,7 @@ function printTLV(parentItem, item, tags, indent=0) {
           reloadQR();
         }
 
-        valueTag.onblur = handleFinishInput(parentItem, container, inputTag, lengthTag, valueTag);
+        valueTag.onblur = handleFinishInput(typeof item.v === 'string' ? parentItem : item, container, inputTag, lengthTag, valueTag);
 
 
         container.appendChild(indentTag);
