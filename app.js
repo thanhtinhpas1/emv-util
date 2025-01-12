@@ -14,7 +14,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(session({
-    secret: config.get('secret_key'),
+    secret: 'secret_key',
     resave: true,
     saveUninitialized: true
 }));
@@ -84,7 +84,7 @@ app.use((err, req, res, next) => {
     })
 })
 
-var port = config.get("server.port");
+var port = 3000;
 
 app.listen(process.env.PORT || port, function(){
     console.log("Server is running on port: ", port);
