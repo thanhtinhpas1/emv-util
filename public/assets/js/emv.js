@@ -442,3 +442,15 @@ function crc16(str) {
 
     return crc.toString(16).toUpperCase().padStart(4, '0');
 }
+
+
+function genVNPayDeeplink() {
+  var code = document.getElementById('code').value;
+  checkEmvCode();
+  if (result.error != 'success') {
+    return;
+  }
+
+  var deeplink = `zalopay-vnpay://${encodeURIComponent(code)}?callbackurl=https%3A%2F%2Fexample.com`;
+  document.getElementById('qr').src = "https://quickchart.io/chart?chs=220x220&cht=qr&chl=" + deeplink; 
+}
