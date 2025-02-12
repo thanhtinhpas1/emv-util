@@ -452,5 +452,5 @@ function genVNPayDeeplink() {
   }
 
   var deeplink = `zalopay-vnpay://${encodeURIComponent(code)}?callbackurl=https%3A%2F%2Fexample.com`;
-  document.getElementById('qr').src = "https://quickchart.io/chart?chs=220x220&cht=qr&chl=" + deeplink; 
+  document.getElementById('qr').src = "https://quickchart.io/chart?chs=220x220&cht=qr&chl=" + encodeURIComponent(deeplink); 
 }
