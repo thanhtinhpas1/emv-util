@@ -336,6 +336,15 @@ function printTLV(parentItem, item, tags, indent=0) {
         aElement.style.fontSize = '14px';
         aElement.style.fontWeight = '600';
 
+        if (typeof item.v !== 'string') {
+          var dElement = document.createElement('a');
+          dElement.innerText = 'x';
+          dElement.style.cursor = 'pointer';
+          dElement.style.color = 'red';
+          dElement.style.fontSize = '14px';
+          dElement.style.fontWeight = '600';
+        }
+
         root.appendChild(third);
         const childRoot = printTLV(typeof item.v != 'string' ? item : parentItem, item, item.v, indent + 1)
         root.appendChild(childRoot);
@@ -406,8 +415,27 @@ function printTLV(parentItem, item, tags, indent=0) {
 
         aElement.onclick = handleClick(item, inputTag);
 
+
+        const handleDeleteClick = (item, inputTag) => () => {
+          if (Array.isArray(parentItem)) {
+            parentItem.splice(parentItem.indexOf(item), 1);
+          } else {
+            parentItem.v.splice(parentItem.v.indexOf(item), 1);
+          }
+
+          reloadQR();
+        }
+
+        if (typeof item.v != 'string') {
+          dElement.onclick = handleDeleteClick(item, inputTag);
+        }
+
         if (typeof item.v != 'string') {
           third.appendChild(aElement);
+          const space = document.createElement('span');
+          space.innerText = ' ';
+          third.appendChild(space);
+          third.appendChild(dElement);
           third.appendChild(document.createElement('br'));
         } else {
           const space = document.createElement('span');
