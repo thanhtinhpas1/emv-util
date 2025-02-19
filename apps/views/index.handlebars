@@ -1,54 +1,61 @@
 <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
-        <style>
-            button {
-                width: 170px;
-                height: 30px;
-            }
 
-            #qr {
-                position: absolute;
-                top: 110px;
-                left: 400px;
-            }
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,500,500i,600,600i,700,700i&amp;subset=latin-ext">
+    <style>
+        button {
+            width: 170px;
+            height: 30px;
+        }
 
-            body {
-                font-family: monospace;
-            }
+        #qr {
+            position: absolute;
+            top: 140px;
+            left: 400px;
+        }
 
-            #code {
-                display: block;
-                width: 100%;
-                height: 30px;
-                margin: 10px 0
-            }
+        body {
+            font-family: monospace;
+        }
 
-            input[type='file'] {
-                color: transparent;
-                display: none;
-            }
-        </style>
-    </head>
-    <body>
-        <div style="margin:10px">
-            <div id="reader"></div>
-            <button type="button" onclick="chooseFile()">Upload File</button>
-            <input type="file" id="qr-input-file" accept="image/*">
-            <button type="button" onclick="pasteImage()">Paste Image</button>
-            <input name="code" id="code" value="" placeholder="emv code value">
-            <button type="button" onclick="checkEmvCode()">Beautify</button>
-            <button type="button" onclick="genVNPayDeeplink()">VNPay Deeplink</button>
-            <img id="qr" src=''/>
-            <div id="formated"></div>
-        </div>
-        <canvas id="canvas"></canvas>
-        <script type="text/javascript">
+        #code {
+            display: block;
+            width: 100%;
+            height: 30px;
+            margin: 10px 0
+        }
 
-        </script>
-        <script src="/assets/js/html5_qrcode.js"></script>
-        <script src="/assets/js/emv.js"></script>
-    </body>
+        input[type='file'] {
+            color: transparent;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="margin:10px">
+        <div id="reader"></div>
+        <button type="button" onclick="chooseFile()">Upload File</button>
+        <input type="file" id="qr-input-file" accept="image/*">
+        <button type="button" onclick="pasteImage()">Paste Image</button>
+        <input name="code" id="code" value="" placeholder="emv code value">
+        <button type="button" onclick="checkEmvCode()">Beautify</button>
+        <button type="button" onclick="genVNPayDeeplink()">VNPay Deeplink</button>
+        <button type="button" onclick="openVNPayLink()">VNPay Spa</button>
+    </div>
+    <div style="margin-top: 30px">
+        <img id="qr" src='' />
+        <div id="formated"></div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript">
+
+    </script>
+    <script src="/assets/js/html5_qrcode.js"></script>
+    <script src="/assets/js/emv.js"></script>
+</body>
+
 </html>

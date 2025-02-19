@@ -482,3 +482,14 @@ function genVNPayDeeplink() {
   var deeplink = `zalopay-vnpay://${encodeURIComponent(code)}?callbackurl=https%3A%2F%2Fexample.com`;
   document.getElementById('qr').src = "https://quickchart.io/chart?chs=220x220&cht=qr&chl=" + encodeURIComponent(deeplink); 
 }
+
+function openVNPayLink() {
+  var code = document.getElementById('code').value;
+  checkEmvCode();
+  if (result.error != 'success') {
+    return;
+  }
+
+  var deeplink = `https://socialdev.zalopay.vn/spa/v2/offline-qr/vnpay?qr=${encodeURIComponent(code)}&callbackurl=https%3A%2F%2Fexample.com`;
+  window.open(deeplink);
+}
